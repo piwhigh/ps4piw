@@ -5,39 +5,49 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RAW GAME</title>
 <style>
-  html { 
+  /* Membuat lapisan latar belakang kustom yang tidak bisa dihapus oleh skrip eksploit */
+  .custom-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0b0d10 url('bg.png') no-repeat center center fixed;
+    background-size: cover;
+    z-index: -9999; /* Memaksa gambar berada di lapisan paling bawah */
+  }
+
+  html, body { 
     margin: 0; 
     padding: 0; 
-    background: #0b0d10 url('bg.png') no-repeat center center fixed; 
-    background-size: cover;
+    background: transparent !important; /* Mencegah layar menjadi hitam */
     color: #c8ced8;
     font: 15px/1.45 "Segoe UI", system-ui, sans-serif; 
   }
-  body { 
-    margin: 0; 
-    padding: 0; 
-    background: transparent !important; 
-  }
 
-  #wrap { padding:16px 18px; }
-  #state { font-size:22px; font-weight:700; margin:0 0 6px; }
-  #det { font-size:13px; color:#8b95a3; margin:0 0 4px; }
-  #det b { color:#c8ced8; font-weight:600; }
-  #cache { font-size:12px; color:#5c6672; margin:0 0 10px; min-height:14px; }
-  #cache.cacheok { color:#7fd0a0; }
-  .ok { color:#7fd0a0; } .bad { color:#d08a7f; } .warn { color:#d8c07f; }
-  #brand { text-align:center; padding:8px 10px; background:#0e1116;
-           border-bottom:1px solid #1e2732; }
-  #brand img { width:28px; height:28px; margin-right:8px; border-radius:50%;
-               vertical-align:middle; }
-  #brand b { font-size:15px; font-weight:700; letter-spacing:.14em;
-             color:#e6ebf2; vertical-align:middle; }
+  #wrap { position: relative; padding: 16px 18px; z-index: 1; }
+  #state { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+  #det { font-size: 13px; color: #8b95a3; margin: 0 0 4px; }
+  #det b { color: #c8ced8; font-weight: 600; }
+  #cache { font-size: 12px; color: #5c6672; margin: 0 0 10px; min-height: 14px; }
+  #cache.cacheok { color: #7fd0a0; }
+  .ok { color: #7fd0a0; } .bad { color: #d08a7f; } .warn { color: #d8c07f; }
+  
+  #brand { position: relative; text-align: center; padding: 8px 10px; background: #0e1116;
+           border-bottom: 1px solid #1e2732; z-index: 1; }
+  #brand img { width: 28px; height: 28px; margin-right: 8px; border-radius: 50%;
+               vertical-align: middle; }
+  #brand b { font-size: 15px; font-weight: 700; letter-spacing: .14em;
+             color: #e6ebf2; vertical-align: middle; }
 </style>
 </head>
 <body>
-<div id="brand"><img src="data:image/png;base64,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"><b>RAW GAME</b></div>
+<!-- Elemen pengunci gambar kustom Anda -->
+<div class="custom-bg"></div>
+
+<div id="brand"><img src="data:image/png;base64,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"><b>RAW GAME</b></div>
 <div id="wrap">
-  <div id="state">Ready</div>
+  <div id="state">detecting firmware...</div>
   <div id="det">Status: <b>Awaiting Payload</b></div>
   <div id="cache">Caching status will appear here...</div>
 </div>
